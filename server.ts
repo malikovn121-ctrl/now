@@ -959,38 +959,9 @@ const isProduction = process.env.NODE_ENV === 'production';
 if (!isProduction) {
   const { createServer: createViteServer } = await import('vite');
   const vite = await createViteServer({
-    server: {
-      middlewareMode: true,
-      hmr: process.env.DISABLE_HMR !== 'true',
-      watch: process.env.DISABLE_HMR === 'true' ? null : {},
-    },
+    server: { middlewareMode: true },
     appType: 'spa',
   });
-
-  // Intercept /@vite/client to safely handle WebSocket/HMR disconnection in preview iframe
-  app.use(async (req, res, next) => {
-    if (req.url && req.url.startsWith('/@vite/client')) {
-      try {
-        const result = await vite.transformRequest(req.url);
-        if (result && result.code) {
-          let code = result.code;
-          // Suppress unhandled rejection when HMR WebSocket fails to connect in container/iframe
-          code = code.replace('throw e;', 'return;');
-          code = code.replace(
-            'transport.connect(createHMRHandler(handleMessage));',
-            'transport.connect(createHMRHandler(handleMessage)).catch(() => {});'
-          );
-          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-          res.setHeader('Cache-Control', 'no-cache');
-          return res.send(code);
-        }
-      } catch (err) {
-        return next(err);
-      }
-    }
-    next();
-  });
-
   app.use(vite.middlewares);
 } else {
   app.use(express.static(path.resolve(__dirname, 'dist')));

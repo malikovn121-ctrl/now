@@ -119,10 +119,8 @@ function CandlestickChart({
   const allHighs = candles.map((c) => c.high).filter((n) => n > 0);
   if (allLows.length === 0 || allHighs.length === 0) return null;
 
-  const validSupport = immediateSupport > 0 ? immediateSupport : (allLows[0] || 1);
-  const validResistance = immediateResistance > 0 ? immediateResistance : (allHighs[0] || 1);
-  const minPrice = Math.min(...allLows, validSupport * 0.996);
-  const maxPrice = Math.max(...allHighs, validResistance * 1.004);
+  const minPrice = Math.min(...allLows, immediateSupport * 0.996);
+  const maxPrice = Math.max(...allHighs, immediateResistance * 1.004);
   const range = maxPrice - minPrice || 1;
 
   const height = 90;
@@ -141,9 +139,9 @@ function CandlestickChart({
           Фактический свечной график (Binance 7D)
         </span>
         <div className="flex items-center gap-2 text-[10px]">
-          <span className="text-emerald-400">Поддержка: ${Math.round(validSupport).toLocaleString()}</span>
+          <span className="text-emerald-400">Поддержка: ${Math.round(immediateSupport).toLocaleString()}</span>
           <span className="text-neutral-600">•</span>
-          <span className="text-rose-400">Сопротивление: ${Math.round(validResistance).toLocaleString()}</span>
+          <span className="text-rose-400">Сопротивление: ${Math.round(immediateResistance).toLocaleString()}</span>
         </div>
       </div>
 
@@ -793,7 +791,7 @@ export default function App() {
                         <div>
                           <span className="text-neutral-500 block">ОИ Деривативов / F&G</span>
                           <span className="text-neutral-200 font-medium text-[10px]">
-                            {((item.openInterestUsd || 0) / 1e9).toFixed(2)}B • {item.fearAndGreed?.split('/')[0] || '65'}
+                            ${(item.openInterestUsd / 1e9).toFixed(2)}B • {item.fearAndGreed?.split('/')[0] || '65'}
                           </span>
                         </div>
                       </div>
@@ -809,21 +807,21 @@ export default function App() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px] font-mono mb-2">
                           <div className="bg-neutral-950/60 p-2 rounded border border-neutral-800/60">
                             <span className="text-neutral-500 block text-[10px]">Суточный (24–48ч):</span>
-                            <span className="text-neutral-200 font-semibold">{item.forecast?.realistic24hRange?.split('(')[0] || 'В расчете'}</span>
+                            <span className="text-neutral-200 font-semibold">{item.forecast.realistic24hRange.split('(')[0]}</span>
                           </div>
                           <div className="bg-emerald-950/30 p-2 rounded border border-emerald-900/50">
                             <span className="text-emerald-400/90 block text-[10px]">Тактический (1–2 нед.):</span>
-                            <span className="text-emerald-300 font-semibold">{item.forecast?.tacticalWeeklyCorridor?.split('(')[0] || 'В расчете'}</span>
+                            <span className="text-emerald-300 font-semibold">{item.forecast.tacticalWeeklyCorridor.split('(')[0]}</span>
                           </div>
                           <div className="bg-indigo-950/30 p-2 rounded border border-indigo-900/50">
                             <span className="text-indigo-400/90 block text-[10px]">Бычий таргет (1–3 мес.):</span>
-                            <span className="text-indigo-300 font-semibold">{item.forecast?.bullTargetFib || 'В расчете'}</span>
+                            <span className="text-indigo-300 font-semibold">{item.forecast.bullTargetFib}</span>
                           </div>
                         </div>
                         <div className="flex flex-col gap-1 text-[10px] text-neutral-400 font-mono bg-neutral-950/40 p-2 rounded border border-neutral-800/40">
-                          <div><span className="text-neutral-500 font-sans">Свечные экстремумы (30д):</span> Мин ${Math.round(item.localLow30d || 0).toLocaleString()} — Макс ${Math.round(item.localPeak30d || 0).toLocaleString()}</div>
-                          <div><span className="text-neutral-500 font-sans">Кластер ликвидаций:</span> Шорт-сквиз: {item.shortSqueezeCluster || '—'} | Стопы: {item.longFlushCluster || '—'}</div>
-                          <div><span className="text-neutral-500 font-sans">База расчета:</span> {item.forecast?.formulaBasis || 'Свечной график (7д)'}</div>
+                          <div><span className="text-neutral-500 font-sans">Свечные экстремумы (30д):</span> Мин ${Math.round(item.localLow30d).toLocaleString()} — Макс ${Math.round(item.localPeak30d).toLocaleString()}</div>
+                          <div><span className="text-neutral-500 font-sans">Кластер ликвидаций:</span> Шорт-сквиз: {item.shortSqueezeCluster} | Стопы: {item.longFlushCluster}</div>
+                          <div><span className="text-neutral-500 font-sans">База расчета:</span> {item.forecast.formulaBasis}</div>
                         </div>
                       </div>
                     </div>
